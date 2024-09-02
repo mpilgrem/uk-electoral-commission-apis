@@ -1,0 +1,83 @@
+cabal-version: 2.2
+
+-- This file has been generated from package.yaml by hpack version 0.37.0.
+--
+-- see: https://github.com/sol/hpack
+
+name:           uk-electoral-commission-apis
+version:        0.1.0.0
+synopsis:       Bindings to the UK's Electoral Commissions's APIs
+description:    The <https://api.electoralcommission.org.uk/docs/ UK's Electoral Commission's Election Information API v1> provides a way to access information about future elections for a postcode unit and/or address. This library package provides bindings in Haskell to that API.
+                .
+                This package has no connection with the UK's Electoral Commission or its affiliates.
+category:       Web
+homepage:       https://github.com/mpilgrem/uk-electoral-commission-apis#readme
+bug-reports:    https://github.com/mpilgrem/uk-electoral-commission-apis/issues
+author:         Mike Pilgrem
+maintainer:     public@pilgrem.com
+copyright:      Copyright 2024 Mike Pilgrem
+license:        BSD-3-Clause
+license-file:   LICENSE
+build-type:     Simple
+extra-source-files:
+    README.md
+    CHANGELOG.md
+
+source-repository head
+  type: git
+  location: https://github.com/mpilgrem/uk-electoral-commission-apis
+
+flag example
+  description: Build the example application
+  manual: True
+  default: False
+
+library
+  exposed-modules:
+      Web.UkElectoralCommission.ElectionInfo.V1
+  other-modules:
+      Paths_uk_electoral_commission_apis
+  autogen-modules:
+      Paths_uk_electoral_commission_apis
+  hs-source-dirs:
+      src
+  ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints
+  build-depends:
+      aeson >=2.2.0.0
+    , base >=4.7 && <5
+    , email-validate
+    , http-client
+    , http-client-tls
+    , network-uri
+    , servant
+    , servant-client
+    , text
+    , time
+    , vector
+  default-language: Haskell2010
+
+executable election-info-example
+  main-is: Main.hs
+  other-modules:
+      Paths_uk_electoral_commission_apis
+  autogen-modules:
+      Paths_uk_electoral_commission_apis
+  hs-source-dirs:
+      example
+  ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints -threaded -rtsopts -with-rtsopts=-N
+  build-depends:
+      aeson >=2.2.0.0
+    , base >=4.7 && <5
+    , email-validate
+    , http-client
+    , http-client-tls
+    , network-uri
+    , servant
+    , servant-client
+    , text
+    , time
+    , uk-electoral-commission-apis
+    , vector
+  default-language: Haskell2010
+  if !flag(example)
+    buildable: False

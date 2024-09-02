@@ -1,0 +1,70 @@
+name: uk-electoral-commission-apis
+version: 0.1.0.0
+github: "mpilgrem/uk-electoral-commission-apis"
+license: BSD-3-Clause
+author: "Mike Pilgrem"
+maintainer: "public@pilgrem.com"
+copyright: "Copyright 2024 Mike Pilgrem"
+synopsis: Bindings to the UK's Electoral Commissions's APIs
+category: Web
+description: >
+  The
+  <https://api.electoralcommission.org.uk/docs/ UK's Electoral Commission's Election Information API v1>
+  provides a way to access information about future elections for a postcode
+  unit and/or address. This library package provides bindings in Haskell to that
+  API.
+
+
+  This package has no connection with the UK's Electoral Commission or its
+  affiliates.
+
+extra-source-files:
+- README.md
+- CHANGELOG.md
+
+flags:
+  example:
+    description: Build the example application
+    default: false
+    manual: true
+
+dependencies:
+- base >= 4.7 && < 5
+- aeson >= 2.2.0.0
+- email-validate
+- http-client
+- http-client-tls
+- network-uri
+- servant
+- servant-client
+- text
+- time
+- vector
+
+ghc-options:
+- -Wall
+- -Wcompat
+- -Widentities
+- -Wincomplete-record-updates
+- -Wincomplete-uni-patterns
+- -Wmissing-export-lists
+- -Wmissing-home-modules
+- -Wpartial-fields
+- -Wredundant-constraints
+
+library:
+  source-dirs: src
+
+executables:
+  election-info-example:
+    when:
+    - condition: "!flag(example)"
+      buildable: false
+    main: Main.hs
+    source-dirs: example
+    ghc-options:
+    - -threaded
+    - -rtsopts
+    - -with-rtsopts=-N
+    dependencies:
+    - uk-electoral-commission-apis

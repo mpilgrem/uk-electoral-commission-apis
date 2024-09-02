@@ -1,0 +1,4 @@
+# The Haskell Stack-related
+.stack-work/
+*.yaml.lock
+*~
