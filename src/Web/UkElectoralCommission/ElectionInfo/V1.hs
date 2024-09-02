@@ -26,7 +26,7 @@ module Web.UkElectoralCommission.ElectionInfo.V1
   , ElectionInfo (..)
   , ElectoralServices (..)
   , Email.EmailAddress
-  , Registration (..)
+  , Contact (..)
   , PostcodeLocation (..)
   , ElectionInfoResponse (..)
   , Address (..)
@@ -37,6 +37,8 @@ module Web.UkElectoralCommission.ElectionInfo.V1
   , Station (..)
   , AdvanceVotingStation (..)
   , OpeningTime (..)
+  , Notification (..)
+  , NotificationType (..)
   , Ballot (..)
   , Object
   , CancellationReason (..)
@@ -45,6 +47,7 @@ module Web.UkElectoralCommission.ElectionInfo.V1
   , Candidate (..)
   , Party (..)
   , Person (..)
+  , VoterIdRequirement (..)
   , AddressPicker
   , getElectionInfo
   , stdAddressPicker
@@ -122,7 +125,7 @@ data ElectionInfo = ElectionInfo
     -- UK's Electoral Commission does not know the user's polling station, this
     -- can be used to provide contact info for their local council. This may be
     -- 'Nothing' if it is not able to determine the user's council.
-  , registration :: !(Maybe Registration)
+  , registration :: !(Maybe Contact)
     -- ^ Sometimes the contact information for registration and proxy voting is
     -- different to the electoral services contact details. Use these if they
     -- exist and your users might have questions about voter registration. If
@@ -147,13 +150,12 @@ instance FromJSON ElectionInfo where
 -- | Type representing information about electoral services.
 data ElectoralServices = ElectoralServices
   { council_id :: !Text
+    -- ^ GSS code for this council.
   , council_name :: !Text
+    -- ^ Name of this council.
   , council_nation :: !Text
-  , council_address :: !Text
-  , council_postcode :: !Postcode
-  , council_email :: !Email.EmailAddress
-  , council_phone :: !Text
-  , council_website :: !URI
+    -- ^ Name of nation.
+  , council_contact :: !Contact
   } deriving (Eq, Generic, Show)
 
 instance FromJSON ElectoralServices where
@@ -168,6 +170,7 @@ instance FromJSON ElectoralServices where
     council_phone  <- o .: "phone"
     council_website <- o .: "website"
     let council_email = unEmailAddress council_email'
+        council_contact = Contact {..}
     pure ElectoralServices {..}
 
 -- Using newtype to avoid an orphan instance.
@@ -181,26 +184,30 @@ instance FromJSON EmailAddress where
         fail $ "'" <> T.unpack t <> "' not recognised as an email address"
       Just emailAddress -> pure $ EmailAddress emailAddress
 
--- | Type representing information about electoral registration, if different
--- from other electoral services.
-data Registration = Registration
-  { reg_address :: !Text
-  , reg_postcode :: !Postcode
-  , reg_email :: !Email.EmailAddress
-  , reg_phone :: !Text
-  , reg_website :: !URI
+-- | Type representing information about council contacts.
+data Contact = Contact
+  { council_address :: !Text
+    -- ^ Contact address for this council.
+  , council_postcode :: !Postcode
+    -- ^ Postcode component of contact address for this council.
+  , council_email :: !Email.EmailAddress
+    -- ^ Contact email address for this council's Electoral Services team.
+  , council_phone :: !Text
+    -- ^ Telephone number for this council's Electoral Services team.
+  , council_website :: !URI
+    -- ^ URL for this council's website.
   } deriving (Eq, Generic, Show)
 
-instance FromJSON Registration where
+instance FromJSON Contact where
 
-  parseJSON = withObject "ElectoralServices" $ \o -> do
-    reg_address <- o .: "address"
-    reg_postcode <- o .: "postcode"
-    reg_email' <- o .: "email"
-    reg_phone  <- o .: "phone"
-    reg_website <- o .: "website"
-    let reg_email = unEmailAddress reg_email'
-    pure Registration {..}
+  parseJSON = withObject "Contact" $ \o -> do
+    council_address <- o .: "address"
+    council_postcode <- o .: "postcode"
+    council_email' <- o .: "email"
+    council_phone  <- o .: "phone"
+    council_website <- o .: "website"
+    let council_email = unEmailAddress council_email'
+    pure Contact {..}
 
 -- | Type representing centroids of postcodes.
 data PostcodeLocation = PostcodeLocation
@@ -331,7 +338,7 @@ instance FromJSON Station where
 data AdvanceVotingStation = AdvanceVotingStation
   { avs_name :: !Text
   , avs_address :: !Text
-  , avs_postcode :: !Text
+  , avs_postcode :: !Postcode
   , avs_x :: !Double
   , avs_y :: !Double
   , avs_opening_times :: ![OpeningTime]
@@ -366,8 +373,7 @@ instance FromJSON OpeningTime where
     ot_close <- parseJSON (a V.! 2)
     pure OpeningTime {..}
 
--- Type representing notifications by the UK's Electoral Commission.
-
+-- | Type representing notifications by the UK's Electoral Commission.
 data Notification = Notification
   { notify_type :: !NotificationType
   , notify_title :: !Text
